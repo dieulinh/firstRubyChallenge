@@ -1,3 +1,4 @@
+require 'pathname'
 LEAVES_MARKERS = '<leaves>'
 def create_tree(path, tree)
   parts = path.split('/')
@@ -48,25 +49,29 @@ if filename
   txt_file = File.new(filename, 'r')
   array = []
   while (line=txt_file.gets)
-    # puts line
     line.strip!
     array.push(line)
   end
 
   rs_hash = Hash.new
-  array.sort.each do |cr_path|
-    # puts cr_path
+  array.sort.each_with_index do |cr_path, index|
+    unless index+1 == array.length
+      unless array[index].nil?
+        if Pathname.new(array[index+1]).parent == Pathname.new(array[index])
+          array[index]=nil
+        end
+      end
+    end
+  end
+  final_array = array.select{|x| x if !x.nil?}
+  final_array.sort.each do |cr_path|
     create_tree(cr_path, rs_hash)
-
-
   end
   print_tree(rs_hash, 1)
 else
   puts "Invalid argument! Try again by passing the filename to make a tree"
   
 end
-
-# puts rs_hash
 
 
 
